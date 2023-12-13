@@ -1,6 +1,6 @@
 provider "kubernetes" {
-  host                   = var.eks_cluster_endpoint
-  cluster_ca_certificate = base64decode(var.eks_cluster_certificate)
+  host                   = data.aws_eks_cluster.eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_cluster.certificate_authority[0].data)
 
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
@@ -12,8 +12,8 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    host                   = var.eks_cluster_endpoint
-    cluster_ca_certificate = base64decode(var.eks_cluster_certificate)
+    host                   = data.aws_eks_cluster.eks_cluster.endpoint
+    cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_cluster.certificate_authority[0].data)
 
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
@@ -25,8 +25,8 @@ provider "helm" {
 }
 provider "kubectl" {
   apply_retry_count      = 5
-  host                   = var.eks_cluster_endpoint
-  cluster_ca_certificate = base64decode(var.eks_cluster_certificate)
+  host                   = data.aws_eks_cluster.eks_cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks_cluster.certificate_authority[0].data)
   load_config_file       = false
 
   exec {

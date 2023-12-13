@@ -8,21 +8,8 @@ variable "region" {
   type        = string
   default     = "us-east-1"
 }
-variable "oidc_provider_arn" {
-  description = "AWS EKS cluster oidc provider arn"
-  type        = string
-}
 variable "cluster_name" {
   description = "AWS EKS cluster name with which terraform works"
-  type        = string
-}
-
-variable "eks_cluster_certificate" {
-  description = "Cluster certicate which give ability to work with cluster"
-  type        = string
-}
-variable "eks_cluster_endpoint" {
-  description = "Cluster endpoint which give ability to work with cluster"
   type        = string
 }
 
@@ -106,7 +93,7 @@ variable "velero_chart_version" {
 variable "velero_bucket_name" {
   description = "Name of bucket created for velero addons"
   type        = string
-  default     = ""
+  default     = "valero-test-bucket-id1234023123"
 }
 
 variable "velero_irsa_role_name" {

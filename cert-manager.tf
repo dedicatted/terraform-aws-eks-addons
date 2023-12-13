@@ -9,7 +9,7 @@ module "cert_manager_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
       namespace_service_accounts = ["kube-system:cert-manager"]
     }
   }
@@ -42,7 +42,7 @@ resource "helm_release" "cert_manager" {
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = aws_iam_role.kubernetes_cert_manager[0].arn
+    value = module.cert_manager_irsa_role[0].iam_role_arn
   }
 
   values = [
