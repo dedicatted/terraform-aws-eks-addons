@@ -2,11 +2,7 @@ module "eks-addons" {
   source = "github.com/dedicatted/terraform-aws-eks-addons"
   vpc_id = "vpc-123456123412"
   region = "eu-central-1" # by default us-east-1
-  oidc_provider_arn = "PASS_OIDC_PROVIDER_ARN_HERE"
   cluster_name = "test-cluster"
-  eks_cluster_certificate = "PASS_CA_HERE"
-  eks_cluster_endpoint = "PASS_EKS_CLUSTER_ENDPOINT_HERE"
-
   ## CLUSTER AUTOSCALER
   cluster_autoscaler_enabled = true # by default false
   
