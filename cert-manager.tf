@@ -13,8 +13,6 @@ module "cert_manager_irsa_role" {
       namespace_service_accounts = ["kube-system:cert-manager"]
     }
   }
-
-  tags = local.tags
 }
 
 resource "helm_release" "cert_manager" {
