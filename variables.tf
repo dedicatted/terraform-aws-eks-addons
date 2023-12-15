@@ -228,3 +228,58 @@ variable "cert_manager_hosted_zone_arn" {
   type        = list(string)
   default     = [""]
 }
+
+############################# EFS CSI Driver ############################
+
+variable "efs_csi_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "efs_csi_irsa_role_name" {
+  description = "Name of IRSA which created for cert manager addons"
+  type        = string
+  default     = "EFSCSIDriverRSA"
+}
+
+variable "efs_csi_helm_chart_name" {
+  type        = string
+  default     = "aws-efs-csi-driver"
+  description = "Amazon EFS CSI Driver chart name."
+}
+
+variable "efs_csi_helm_chart_release_name" {
+  type        = string
+  default     = "aws-efs-csi-driver"
+  description = "Amazon EFS CSI Driver release name."
+}
+
+variable "efs_csi_helm_chart_repo" {
+  type        = string
+  default     = "https://kubernetes-sigs.github.io/aws-efs-csi-driver/"
+  description = "Amazon EFS CSI Driver repository name."
+}
+
+variable "efs_csi_helm_chart_version" {
+  type        = string
+  default     = "2.2.0"
+  description = "Amazon EFS CSI Driver chart version."
+}
+
+variable "efs_csi_namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "Kubernetes namespace to deploy EFS CSI Driver Helm chart."
+}
+
+variable "create_efs_storage_class" {
+  type        = bool
+  default     = false
+  description = "Whether to create Storage class for EFS CSI driver."
+}
+
+variable "efs_csi_settings" {
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values, see https://github.com/kubernetes-sigs/aws-efs-csi-driver."
+}
