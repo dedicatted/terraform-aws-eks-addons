@@ -281,5 +281,133 @@ variable "create_efs_storage_class" {
 
 variable "efs_csi_settings" {
   default     = {}
+  type = map(string)
   description = "Additional settings which will be passed to the Helm chart values, see https://github.com/kubernetes-sigs/aws-efs-csi-driver."
+}
+
+####################################### METRICS SERVICE ######################################
+variable "metrics_server_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "metrics_server_version" {
+  description = "The metrics-server version to use. See https://github.com/kubernetes-sigs/metrics-server/releases for available versions"
+  type        = string
+  default     = "0.3.6"
+}
+
+variable "metrics_server_pod_annotations" {
+  description = "Additional annotations to be added to the Pods."
+  type        = map(string)
+  default     = {}
+}
+variable "metrics_server_namespace" {
+  description = "Difine namespace for deploying metrics server"
+  type = string
+  default = "kube-system"
+}
+
+###################################### INGRESS NGINX #########################################
+variable "ingress_nginx_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "ingress_nginx_version" {
+  description = "The metrics-server version to use. See https://kubernetes.github.io/ingress-nginx for available versions"
+  type        = string
+  default     = "3.15.2"
+}
+
+variable "ingress_nginx_namespace" {
+  description = "Difine namespace for deploying metrics server"
+  type = string
+  default = "ingress-nginx"
+}
+
+variable "ingress_nginx_route53_zone_name" {
+  description = "List of hosted zone arn which would be used by nginx ingress controller"
+  type        = string()
+  default     = ""
+}
+
+################################## NODE TERMINATION HANDLER ##########################
+
+variable "node_termination_handler_enabled" {
+  type        = bool
+  default     = true
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "node_termination_handler_helm_chart_name" {
+  type        = string
+  default     = "aws-node-termination-handler"
+  description = "Spot termination handler Helm chart name."
+}
+
+variable "node_termination_handler_helm_chart_release_name" {
+  type        = string
+  default     = "aws-node-termination-handler"
+  description = "Spot termination handler Helm release name."
+}
+
+variable "node_termination_handler_helm_chart_repo" {
+  type        = string
+  default     = "https://aws.github.io/eks-charts"
+  description = "Spot termination handler Helm repository name."
+}
+
+variable "node_termination_handler_helm_chart_version" {
+  type        = string
+  default     = "1.12.7"
+  description = "Spot termination handler Helm chart version."
+}
+
+variable "node_termination_handler_create_namespace" {
+  type        = bool
+  default     = true
+  description = "Whether to create Kubernetes namespace with name defined by `namespace`."
+}
+
+variable "node_termination_handler_namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "Kubernetes namespace to deploy Spot termination handler Helm chart."
+}
+
+variable "node_termination_handler_settings" {
+  type = map(any)
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values."
+}
+
+######################################## KARPENTER ########################################
+
+variable "karpenter_enabled" {
+  type        = bool
+  default     = true
+  description = "Variable indicating whether deployment is enabled."
+}
+variable "karpenter_namespace" {
+  type        = string
+  default     = "karpenter"
+  description = "Kubernetes namespace to deploy karpenter Helm chart."
+}
+variable "karpenter_helm_chart_repo" {
+  type        = string
+  default     = "https://charts.karpenter.sh"
+  description = "Karpenter Helm repository name."
+}
+variable "karpenter_helm_chart_name" {
+  type        = string
+  default     = "karpenter"
+  description = "Karpenter Helm chart name."
+}
+variable "karpenter_helm_chart_version" {
+  type        = string
+  default     = "v0.6.0"
+  description = "Karpenter Helm chart version."
 }
