@@ -47,4 +47,5 @@ resource "helm_release" "cluster_autoscaler" {
   }
   EOT
   ]
+  depends_on = [ module.cluster_autoscaler_irsa_role ]
 }

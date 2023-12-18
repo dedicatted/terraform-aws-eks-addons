@@ -39,13 +39,7 @@ resource "helm_release" "external_secrets" {
     value = module.external_secrets_irsa_role[0].iam_role_arn
   }
 }
-# Wait until external secrets addon finalizing
-resource "time_sleep" "wait_for_external_secrets" {
-  count      = var.external_secrets_enabled ? 1 : 0
-  depends_on = [helm_release.external_secrets]
 
-  create_duration = "120s"
-}
 resource "kubectl_manifest" "external_secrets_cluster_store" {
   yaml_body  = <<YAML
 apiVersion: "external-secrets.io/v1beta1"

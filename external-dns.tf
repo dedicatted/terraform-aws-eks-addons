@@ -41,11 +41,3 @@ serviceAccount:
 EOF
   ]
 }
-
-# Wait until external DNS addon finalizing
-resource "time_sleep" "wait_for_external_dns" {
-  count      = var.external_dns_enabled ? 1 : 0
-  depends_on = [helm_release.external_dns]
-
-  create_duration = "30s"
-}

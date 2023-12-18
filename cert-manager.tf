@@ -46,5 +46,5 @@ resource "helm_release" "cert_manager" {
   values = [
     yamlencode(var.cert_manager_settings)
   ]
-
+  depends_on = [ module.cert_manager_irsa_role ]
 }
