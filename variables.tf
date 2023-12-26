@@ -12,6 +12,11 @@ variable "cluster_name" {
   description = "AWS EKS cluster name with which terraform works"
   type        = string
 }
+variable "provider_arn" {
+  type = string
+  description = "providerarn"
+  default = ""
+}
 
 ################################### CLUSTER AUTOSCALER ######################################
 variable "cluster_autoscaler_enabled" {
@@ -57,6 +62,11 @@ variable "external_dns_irsa_role_name" {
   type        = string
   default     = "ExternalDNSIRSA"
 }
+variable "external_dns_zone_type" {
+  description = "Type of route53 zone (public | private)"
+  type = string
+  default = "public"
+}
 
 ################################### ALB CONTROLLER ######################################
 variable "aws_load_balancer_controller_enabled" {
@@ -68,13 +78,18 @@ variable "aws_load_balancer_controller_enabled" {
 variable "alb_chart_version" {
   description = "ALB controller chart version to use for the ALB controller addons(i.e.: `1.5.4`)"
   type        = string
-  default     = "1.5.4"
+  default     = "1.6.2"
 }
 
 variable "alb_controller_irsa_role_name" {
   description = "Name of IRSA which created for application load balancer controller addons"
   type        = string
   default     = "AlbControllerIRSA"
+}
+variable "alb_ingress_type" {
+  description = "Type of loadbalancer for creation"
+  default = "alb"
+  type = string
 }
 
 ##################################### VELERO ############################################
@@ -172,7 +187,7 @@ variable "cluster_secret_store_name" {
 ######################### CERTIFICATION MANAGER ##############################
 variable "cert_manager_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Variable indicating whether deployment is enabled."
 }
 
@@ -263,7 +278,7 @@ variable "efs_csi_helm_chart_repo" {
 
 variable "efs_csi_helm_chart_version" {
   type        = string
-  default     = "2.2.0"
+  default     = "2.2.7"
   description = "Amazon EFS CSI Driver chart version."
 }
 
@@ -285,23 +300,30 @@ variable "efs_csi_settings" {
   description = "Additional settings which will be passed to the Helm chart values, see https://github.com/kubernetes-sigs/aws-efs-csi-driver."
 }
 
+variable "efs_storage_class_name" {
+  type = string
+  default = "terraform-efs-storage-class"
+  description = "Name of Storage Class custom resources"
+}
+
 ####################################### METRICS SERVICE ######################################
 variable "metrics_server_enabled" {
   type        = bool
   default     = false
   description = "Variable indicating whether deployment is enabled."
 }
-
-variable "metrics_server_version" {
-  description = "The metrics-server version to use. See https://github.com/kubernetes-sigs/metrics-server/releases for available versions"
-  type        = string
-  default     = "0.3.6"
+variable "metrics_server_helm_chart_repo" {
+  type = string
+  default = "https://kubernetes-sigs.github.io/metrics-server/"
 }
+variable "metrics_server_helm_chart_name" {
+  type = string
+  default = "metrics-server"
+}
+variable "metrics_server_helm_chart_version" {
+  type = string
+  default = "3.11.0"
 
-variable "metrics_server_pod_annotations" {
-  description = "Additional annotations to be added to the Pods."
-  type        = map(string)
-  default     = {}
 }
 variable "metrics_server_namespace" {
   description = "Difine namespace for deploying metrics server"
@@ -319,7 +341,7 @@ variable "ingress_nginx_enabled" {
 variable "ingress_nginx_version" {
   description = "The metrics-server version to use. See https://kubernetes.github.io/ingress-nginx for available versions"
   type        = string
-  default     = "3.15.2"
+  default     = "4.7.3"
 }
 
 variable "ingress_nginx_namespace" {
@@ -328,17 +350,23 @@ variable "ingress_nginx_namespace" {
   default = "ingress-nginx"
 }
 
-variable "ingress_nginx_route53_zone_name" {
-  description = "List of hosted zone arn which would be used by nginx ingress controller"
-  type        = string()
-  default     = ""
+variable "ingress_controller_type" {
+  description = "Difine type of load balancer internal or external (internal | internet-facing)"
+  default = "internet-facing"
+  type = string
+}
+variable "ingress_nginx_settings" {
+  type = map(any)
+  default = {
+  }
+  description = "Additional setting for your ingress controller"
 }
 
 ################################## NODE TERMINATION HANDLER ##########################
 
 variable "node_termination_handler_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Variable indicating whether deployment is enabled."
 }
 
@@ -366,12 +394,6 @@ variable "node_termination_handler_helm_chart_version" {
   description = "Spot termination handler Helm chart version."
 }
 
-variable "node_termination_handler_create_namespace" {
-  type        = bool
-  default     = true
-  description = "Whether to create Kubernetes namespace with name defined by `namespace`."
-}
-
 variable "node_termination_handler_namespace" {
   type        = string
   default     = "kube-system"
@@ -388,8 +410,13 @@ variable "node_termination_handler_settings" {
 
 variable "karpenter_enabled" {
   type        = bool
-  default     = true
+  default     = false
   description = "Variable indicating whether deployment is enabled."
+}
+variable "karpenter_controller_irsa_role_name" {
+  type = string
+  default = "IrsaRoleKarpenter"
+  description = "Name of IRSA which created for karpenter addons"
 }
 variable "karpenter_namespace" {
   type        = string
@@ -410,4 +437,138 @@ variable "karpenter_helm_chart_version" {
   type        = string
   default     = "v0.6.0"
   description = "Karpenter Helm chart version."
+}
+
+############################################# RANCHER ######################
+variable "rancher_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+variable "rancher_repository" {
+  type        = string
+  default     = "https://releases.rancher.com/server-charts/latest"
+  description = "Rancher Helm repository name."
+}
+variable "rancher_version" {
+  type        = string
+  default     = "2.8.0"
+  description = "Rancher Helm chart version."
+}
+variable "rancher_domain" {
+  type        = string
+  description = "Domain for rancer to UI access"
+}
+variable "rancher_namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "Kubernetes namespace to deploy rancher Helm chart."
+}
+variable "rancher_chart_name" {
+  type        = string
+  default     = "rancher"
+  description = "Rancher Helm chart name." 
+}
+
+variable "rancher_bootstrapPassword" {
+  type = string
+  default = "admin"
+  description = "Setup initial password while deploy rancher"
+}
+
+###################################### VPC CNI #############################
+
+variable "vpc_cni_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+variable "vpc_cni_irsa_role_name" {
+  type = string
+  default = "VPCCVIIRSARole"
+  description = "Name of IRSA which created for vpc cni"
+}
+variable "vpc_cni_helm_chart_name" {
+  type        = string
+  default     = "aws-vpc-cni"
+  description = "VPC CNI Helm chart name."
+}
+
+variable "vpc_cni_helm_chart_release_name" {
+  type        = string
+  default     = "aws-vpc-cni"
+  description = "VPC CNI Helm chart release name."
+}
+
+variable "vpc_cni_helm_chart_repo" {
+  type        = string
+  default     = "https://aws.github.io/eks-charts"
+  description = "VPC CNI Helm repository name."
+}
+
+variable "vpc_cni_helm_chart_version" {
+  type        = string
+  default     = "1.16.0"
+  description = "VPC CNI Helm chart version."
+}
+
+variable "vpc_cni_namespace" {
+  type        = string
+  default     = "kube-system"
+  description = "VPC CNI Helm chart namespace which the service will be created."
+}
+
+variable "vpc_cni_service_account_name" {
+  type = string
+  default     = "aws-vpc-cni"
+  description = "The kubernetes service account name for VPC CNI."
+}
+
+variable "vpc_cni_settings" {
+  type = map(any)
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values, see https://github.com/aws/eks-charts/tree/master/stable/aws-vpc-cni."
+}
+
+################################## METRICS_SERVER_FOR_PROMETHEUS #################################
+variable "prometheus_metrics_server_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+
+variable "prometheus_metrics_server_namespace" {
+  type        = string
+  default     = "monitoring"
+  description = "VPC CNI Helm chart namespace which the service will be created."
+}
+variable "prometheus_metrics_server_chart_version" {
+  type        = string
+  default     = "23.0.0"
+  description = "Promtheus Helm chart version."
+}
+variable "prometheus_metrics_server_helm_chart_repo" {
+  type        = string
+  default     = "https://prometheus-community.github.io/helm-charts"
+  description = "Promtheus Helm repository name."
+}
+variable "prometheus_metrics_server_helm_chart_name" {
+  default = "prometheus"
+  type = string
+  description = "Prometheus Helm chart name."
+}
+variable "prometheus_metrics_server_release_name" {
+  default = "prometheus"
+  type = string
+  description = "Prometheus Helm chart release name."
+}
+variable "prometheus_workspace_alias" {
+  type        = string
+  default     = "prometheus-terraform-workspace"
+  description = "Name of amazon managed prometheus workspace."
+}
+variable "prometheus_settings" {
+  type = map(any)
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values, see https://github.com/aws/eks-charts/tree/master/stable/aws-vpc-cni."
 }

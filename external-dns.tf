@@ -8,11 +8,11 @@ module "external_dns_irsa_role" {
 
   role_name                     = var.external_dns_irsa_role_name
   attach_external_dns_policy    = true
-  external_dns_hosted_zone_arns = [data.aws_route53_zone.this.arn]
+  external_dns_hosted_zone_arns = [data.aws_route53_zone.external_dns_zone_name[0].zone_id]
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["kube-system:external-dns"]
     }
   }
@@ -29,8 +29,8 @@ resource "helm_release" "external_dns" {
   values = [<<EOF
 provider: aws
 aws:
-  zoneType: public
-txtOwnerId: ${data.aws_route53_zone.this.zone_id}
+  zoneType: ${var.external_dns_zone_type}
+txtOwnerId: ${data.aws_route53_zone.external_dns_zone_name[0].zone_id}
 domainFilters[0]: ${var.route53_zone_name}
 policy: sync
 serviceAccount:
@@ -40,12 +40,5 @@ serviceAccount:
     eks.amazonaws.com/role-arn: ${module.external_dns_irsa_role[0].iam_role_arn}
 EOF
   ]
-}
-
-# Wait until external DNS addon finalizing
-resource "time_sleep" "wait_for_external_dns" {
-  count      = var.external_dns_enabled ? 1 : 0
-  depends_on = [helm_release.external_dns]
-
-  create_duration = "30s"
+  depends_on = [ module.external_dns_irsa_role ]
 }

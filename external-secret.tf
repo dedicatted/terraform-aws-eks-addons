@@ -9,7 +9,7 @@ module "external_secrets_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["external-secrets:external-secrets"]
     }
   }
@@ -39,14 +39,9 @@ resource "helm_release" "external_secrets" {
     value = module.external_secrets_irsa_role[0].iam_role_arn
   }
 }
-# Wait until external secrets addon finalizing
-resource "time_sleep" "wait_for_external_secrets" {
-  count      = var.external_secrets_enabled ? 1 : 0
-  depends_on = [helm_release.external_secrets]
 
-  create_duration = "120s"
-}
 resource "kubectl_manifest" "external_secrets_cluster_store" {
+  count            = var.external_secrets_enabled ? 1 : 0
   yaml_body  = <<YAML
 apiVersion: "external-secrets.io/v1beta1"
 kind: "ClusterSecretStore"
@@ -63,5 +58,5 @@ spec:
             name: "external-secrets"
             namespace: "external-secrets"
   YAML
-  depends_on = [time_sleep.wait_for_external_secrets]
+  depends_on = [helm_release.external_secrets]
 }

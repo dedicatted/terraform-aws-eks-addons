@@ -1,13 +1,13 @@
-resource "kubernetes_namespace" "node_termination_handler_namespace" {
+resource "kubernetes_namespace" "karpenter_namespace" {
   count      = (var.karpenter_enabled && var.karpenter_namespace != "kube-system") ? 1 : 0
 
   metadata {
-    name = var.node_termination_handler_namespace
+    name = var.karpenter_namespace
   }
 }
 module "karpenter_controller_irsa_role" {
   count  = var.karpenter_enabled ? 1 : 0
-  source = "../../modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name                          = var.karpenter_controller_irsa_role_name
   attach_karpenter_controller_policy = true
@@ -16,12 +16,10 @@ module "karpenter_controller_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["karpenter:karpenter"]
     }
   }
-
-  tags = local.tags
 }
 
 resource "helm_release" "karpenter" {
@@ -33,7 +31,7 @@ resource "helm_release" "karpenter" {
   version    = var.karpenter_helm_chart_version
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.iam_assumable_role_karpenter.iam_role_arn
+    value = module.karpenter_controller_irsa_role[0].iam_role_arn
   }
   set {
     name  = "controller.clusterName"
@@ -41,7 +39,7 @@ resource "helm_release" "karpenter" {
   }
   set {
     name  = "controller.clusterEndpoint"
-    value = module.eks.cluster_endpoint
+    value = data.aws_eks_cluster.eks_cluster.endpoint
   }
   set {
     name  = "aws.defaultInstanceProfile"

@@ -8,7 +8,7 @@ module "cluster_autoscaler_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["kube-system:cluster-autoscaler"]
     }
   }

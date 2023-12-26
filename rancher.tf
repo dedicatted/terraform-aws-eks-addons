@@ -1,62 +1,31 @@
-resource "helm_release" "rancher" {
-  depends_on       = [time_sleep.wait_for_ingress_nginx]
-  name             = "rancher"
-  repository       = "https://releases.rancher.com/server-charts/latest"
-  chart            = "rancher"
-  version          = var.rancher_version
-  namespace        = "cattle-system"
-  create_namespace = true
-  values           = var.rancher_values_filename != "" ? [file(var.rancher_values_filename)] : []
+resource "kubernetes_namespace" "rancher_namespace" {
+  count      = (var.rancher_enabled && var.rancher_namespace != "kube-system") ? 1 : 0
 
-  set {
-    name  = "helmVersion"
-    value = "v3"
+  metadata {
+    name = var.rancher_namespace
   }
+}
+
+resource "helm_release" "rancher" {
+  count = var.rancher_enabled ? 1 : 0
+  name             = "rancher"
+  repository       = var.rancher_repository
+  chart            = var.rancher_chart_name
+  version          = var.rancher_version
+  namespace        = var.rancher_namespace
+  timeout          = "300"
   set {
     name  = "hostname"
     value = var.rancher_domain
   }
 
   set {
-    name  = "ingress.tls.source"
-    value = "letsEncrypt"
+    name  = "bootstrapPassword"
+    value = var.rancher_bootstrapPassword
   }
-
   set {
-    name  = "letsEncrypt.email"
-    value = var.cert_manager_letsencrypt_email
+    name = "ingress.ingressClassName"
+    value = "nginx"
   }
-
-  set {
-    name  = "letsEncrypt.environment"
-    value = var.cert_manager_letsencrypt_environment
-  }
-
-}
-
-resource "null_resource" "wait_for_rancher" {
-  depends_on = [helm_release.rancher]
-  provisioner "local-exec" {
-    command     = <<EOF
-while [ "$${subject}" != "*  subject: CN=$${RANCHER_HOSTNAME}" ]; do
-    subject=$(curl -vk -m 2 "https://$${RANCHER_HOSTNAME}/ping" 2>&1 | grep "subject:")
-    echo "Cert Subject Response: $${subject}"
-    if [ "$${subject}" != "*  subject: CN=$${RANCHER_HOSTNAME}" ]; then
-      sleep 10
-    fi
-done
-while [ "$${resp}" != "pong" ]; do
-    resp=$(curl -sSk -m 2 "https://$${RANCHER_HOSTNAME}/ping")
-    echo "Rancher Response: $${resp}"
-    if [ "$${resp}" != "pong" ]; then
-      sleep 10
-    fi
-done
-EOF
-    interpreter = var.shell_interpreter
-
-    environment = {
-      RANCHER_HOSTNAME = var.rancher_domain
-    }
-  }
+  depends_on = [ kubernetes_namespace.rancher_namespace ]
 }

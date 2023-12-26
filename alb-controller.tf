@@ -10,7 +10,7 @@ module "load_balancer_controller_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
@@ -34,12 +34,13 @@ resource "helm_release" "alb_ingress" {
     "region"         : "${var.region}",
     "serviceAccount" : {
       "create"       : true,
-      "name"         : "alb-ingress",
+      "name"         : "aws-load-balancer-controller",
       "annotations"  : {
         "eks.amazonaws.com/role-arn" : "${module.load_balancer_controller_irsa_role[0].iam_role_arn}"
       }
     },
-    "vpcId"          : "${var.vpc_id}"
+    "vpcId"          : "${var.vpc_id}",
+    "ingressClass"   : "${var.alb_ingress_type}"
   }
   EOT
   ]

@@ -1,13 +1,13 @@
 module "efs_csi_irsa_role" {
   count      = var.efs_csi_enabled ? 1 : 0
-  source = "../../modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name             = var.efs_csi_irsa_role_name
   attach_efs_csi_policy = true
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["kube-system:efs-csi-controller-sa", "kube-system:efs-csi-node-sa"]
     }
   }
@@ -30,10 +30,13 @@ resource "helm_release" "kubernetes_efs_csi_driver" {
     name  = "controller.serviceAccount.name"
     value = "efs-csi-controller-sa"
   }
-
+  set {
+    name = "hostNetwork"
+    value = "true"
+  }
   set {
     name  = "controller.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.external_secrets_irsa_role[0].iam_role_arn
+    value = module.efs_csi_irsa_role[0].iam_role_arn
   }
 
   set {
@@ -51,12 +54,13 @@ resource "helm_release" "kubernetes_efs_csi_driver" {
 
   set {
     name  = "node.serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.external_secrets_irsa_role[0].iam_role_arn
+    value = module.efs_csi_irsa_role[0].iam_role_arn
   }
 
   values = [
     yamlencode(var.efs_csi_settings)
   ]
+  depends_on = [ module.efs_csi_irsa_role ]
 }
 
 

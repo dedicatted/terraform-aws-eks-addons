@@ -1,14 +1,14 @@
 module "eks-addons" {
-  source = "github.com/dedicatted/terraform-aws-eks-addons"
-  vpc_id = "vpc-123456123412"
-  region = "eu-central-1" # by default us-east-1
-  cluster_name = "test-cluster"
+  source = "/home/user/proj/terraform-aws-eks-addons/."
+  vpc_id = "vpc-0fcc0eb091c495d4f"
+  region = "us-east-1" # by default us-east-1
+  cluster_name = "devops-eks"
+
   ## CLUSTER AUTOSCALER
   cluster_autoscaler_enabled = true # by default false
   
   ## EXTERNAL DNS
   external_dns_enabled = true # by default false
-  route53_zone_name = "PASS YOU ROUTE53 ZONE NAME"
 
   ## ALB CONTROLLER
   aws_load_balancer_controller_enabled = true # by default false
@@ -20,10 +20,30 @@ module "eks-addons" {
   aws_ebs_csi_driver_enabled = true # by default false
 
   ## EXTERNAL SECRET
-  external_secrets_enabled = true
-  external_secrets_kms_key_arn = ["kms_key_arn_for_encrypt_SecretStore"]
+  external_secrets_enabled = true # by default false
 
   ## CERTIFICATION MANAGER
   cert_manager_enabled = true
-  cert_manager_hosted_zone_arn = ["hosted_zone_arn_which_cert_mager_managed"]
+  cert_manager_hosted_zone_arn = ["arn:aws:route53:::hostedzone/ARN"]
+
+
+  ## EFS CSI Driver
+  efs_csi_enabled = true # by default false
+
+  ## METRICS SERVICE
+  metrics_server_enabled = true # by default false
+
+  ## INGRESS NGINX
+  ingress_nginx_enabled = true # by default false
+  ## Karpenter
+  karpenter_enabled = true # by default false
+
+  ## Rancher
+  rancher_enabled = true # by default false
+  rancher_domain = "example.com"
+  # VPC CNI
+  vpc_cni_enabled = true # by default false
+  # Metrics server for prometheus
+  prometheus_metrics_server_enabled = true # by default false
+
 }
