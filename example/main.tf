@@ -1,8 +1,8 @@
 module "eks-addons" {
   source = "/home/user/proj/terraform-aws-eks-addons/."
-  vpc_id = "vpc-0fcc0eb091c495d4f"
+  vpc_id = "vpc-example123"
   region       = "us-east-1" # by default us-east-1
-  cluster_name = "devops-eks"
+  cluster_name = "example-eks"
 
   ## CLUSTER AUTOSCALER
   cluster_autoscaler_enabled = false # by default false

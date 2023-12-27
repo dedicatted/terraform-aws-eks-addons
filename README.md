@@ -7,9 +7,10 @@ The 'terraform-aws-eks-addons' module streamlines the deployment of essential ad
 ```hcl
 //Configuration to call the module
 module "eks-addons" {
-  source = "github.com/dedicatted/terraform-aws-eks-addons"
-  vpc_id = "vpc-123456123412"
-  region = "eu-central-1" # by default us-east-1
+  source       = "github.com/dedicatted/terraform-aws-eks-addons"
+  vpc_id       = "vpc-example123"
+  region       = "us-east-1" # by default us-east-1
+  cluster_name = "example-eks"
     ## CLUSTER AUTOSCALER
   cluster_autoscaler_enabled = true # by default false
   
