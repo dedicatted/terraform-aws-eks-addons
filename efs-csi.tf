@@ -1,5 +1,5 @@
 module "efs_csi_irsa_role" {
-  count      = var.efs_csi_enabled ? 1 : 0
+  count  = var.efs_csi_enabled ? 1 : 0
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name             = var.efs_csi_irsa_role_name
@@ -31,7 +31,7 @@ resource "helm_release" "kubernetes_efs_csi_driver" {
     value = "efs-csi-controller-sa"
   }
   set {
-    name = "hostNetwork"
+    name  = "hostNetwork"
     value = "true"
   }
   set {
@@ -60,7 +60,7 @@ resource "helm_release" "kubernetes_efs_csi_driver" {
   values = [
     yamlencode(var.efs_csi_settings)
   ]
-  depends_on = [ module.efs_csi_irsa_role ]
+  depends_on = [module.efs_csi_irsa_role]
 }
 
 

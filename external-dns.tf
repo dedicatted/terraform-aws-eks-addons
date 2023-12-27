@@ -40,5 +40,5 @@ serviceAccount:
     eks.amazonaws.com/role-arn: ${module.external_dns_irsa_role[0].iam_role_arn}
 EOF
   ]
-  depends_on = [ module.external_dns_irsa_role ]
+  depends_on = [module.external_dns_irsa_role]
 }

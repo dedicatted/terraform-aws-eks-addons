@@ -12,7 +12,7 @@ module "kms_key_csi" {
   key_users = [
     module.ebs_csi_irsa_role[0].iam_role_arn,
   ]
-  depends_on = [ module.ebs_csi_irsa_role, module.amazon_managed_service_prometheus_irsa_role ]
+  depends_on = [module.ebs_csi_irsa_role, module.amazon_managed_service_prometheus_irsa_role]
 }
 
 module "ebs_csi_irsa_role" {
@@ -30,44 +30,44 @@ module "ebs_csi_irsa_role" {
   }
 }
 data "aws_iam_policy_document" "aws_ebs_csi_driver_kms" {
-  count  = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
+  count = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
   statement {
     sid       = ""
     effect    = "Allow"
     resources = ["${module.kms_key_csi[0].key_arn}"]
-    actions   = [
-        "kms:Encrypt",
-        "kms:Decrypt",
-        "kms:ReEncrypt*",
-        "kms:GenerateDataKey*",
-        "kms:DescribeKey"
-      ]
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
 
   }
 }
 
 resource "aws_iam_policy" "aws_ebs_csi_driver_kms" {
-  count  = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
+  count       = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
   name        = "KMS_Key_For_Encryption_On_EBS_Policy"
   description = "IAM Policy for KMS permission for AWS EBS CSI Driver"
   policy      = data.aws_iam_policy_document.aws_ebs_csi_driver_kms[0].json
 }
 resource "aws_iam_role_policy_attachment" "attach_kms_policy" {
-  count  = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
-  depends_on = [ module.ebs_csi_irsa_role ]
+  count      = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
+  depends_on = [module.ebs_csi_irsa_role]
   role       = var.ebs_csi_irsa_role_name
   policy_arn = aws_iam_policy.aws_ebs_csi_driver_kms[0].arn
 }
 
 resource "helm_release" "ebs_csi_driver" {
-  depends_on = [ module.ebs_csi_irsa_role ]
+  depends_on = [module.ebs_csi_irsa_role]
   count      = var.aws_ebs_csi_driver_enabled ? 1 : 0
   name       = "aws-ebs-csi-driver"
   repository = "https://kubernetes-sigs.github.io/aws-ebs-csi-driver"
   chart      = "aws-ebs-csi-driver"
   version    = var.ebs_chart_version
   namespace  = "kube-system"
-values = [<<EOF
+  values = [<<EOF
 storageClasses:
 # Add StorageClass resources like:
 - name: ebs-sc

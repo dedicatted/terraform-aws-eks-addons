@@ -47,5 +47,5 @@ resource "helm_release" "cluster_autoscaler" {
   }
   EOT
   ]
- depends_on = [ module.cert_manager_irsa_role ]
+  depends_on = [module.cert_manager_irsa_role]
 }

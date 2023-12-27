@@ -233,7 +233,7 @@ module "eks-addons" {
 | <a name="input_vpc_cni_helm_chart_name"></a> [vpc\_cni\_helm\_chart\_name](#input\_vpc\_cni\_helm\_chart\_name) | VPC CNI Helm chart name. | `string` | `"aws-vpc-cni"` | no |
 | <a name="input_vpc_cni_helm_chart_release_name"></a> [vpc\_cni\_helm\_chart\_release\_name](#input\_vpc\_cni\_helm\_chart\_release\_name) | VPC CNI Helm chart release name. | `string` | `"aws-vpc-cni"` | no |
 | <a name="input_vpc_cni_helm_chart_repo"></a> [vpc\_cni\_helm\_chart\_repo](#input\_vpc\_cni\_helm\_chart\_repo) | VPC CNI Helm repository name. | `string` | `"https://aws.github.io/eks-charts"` | no |
-| <a name="input_vpc_cni_helm_chart_version"></a> [vpc\_cni\_helm\_chart\_version](#input\_vpc\_cni\_helm\_chart\_version) | VPC CNI Helm chart version. | `string` | `"1.16.0"` | no |
+| <a name="input_vpc_cni_helm_chart_version"></a> [vpc\_cni\_helm\_chart\_version](#input\_vpc\_cni\_helm\_chart\_version) | VPC CNI Helm chart version. | `string` | `""` | no |
 | <a name="input_vpc_cni_irsa_role_name"></a> [vpc\_cni\_irsa\_role\_name](#input\_vpc\_cni\_irsa\_role\_name) | Name of IRSA which created for vpc cni | `string` | `"VPCCVIIRSARole"` | no |
 | <a name="input_vpc_cni_namespace"></a> [vpc\_cni\_namespace](#input\_vpc\_cni\_namespace) | VPC CNI Helm chart namespace which the service will be created. | `string` | `"kube-system"` | no |
 | <a name="input_vpc_cni_service_account_name"></a> [vpc\_cni\_service\_account\_name](#input\_vpc\_cni\_service\_account\_name) | The kubernetes service account name for VPC CNI. | `string` | `"aws-vpc-cni"` | no |

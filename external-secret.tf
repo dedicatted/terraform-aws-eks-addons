@@ -41,7 +41,7 @@ resource "helm_release" "external_secrets" {
 }
 
 resource "kubectl_manifest" "external_secrets_cluster_store" {
-  count            = var.external_secrets_enabled ? 1 : 0
+  count      = var.external_secrets_enabled ? 1 : 0
   yaml_body  = <<YAML
 apiVersion: "external-secrets.io/v1beta1"
 kind: "ClusterSecretStore"
