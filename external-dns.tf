@@ -42,3 +42,4 @@ EOF
   ]
   depends_on = [module.external_dns_irsa_role]
 }
+

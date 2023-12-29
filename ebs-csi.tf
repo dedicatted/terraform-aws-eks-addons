@@ -1,9 +1,6 @@
 module "kms_key_csi" {
   count  = var.aws_ebs_csi_driver_enabled && var.ebs_csi_kms_key_arn == "" ? 1 : 0
   source = "github.com/dedicatted/devops-tech//terraform/aws/modules/terraform-aws-kms"
-
-  # Add any necessary input variables for the kms module
-  # For example:
   deletion_window_in_days = 7
   key_administrators = [
     data.aws_caller_identity.current.arn,

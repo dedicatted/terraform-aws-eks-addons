@@ -17,15 +17,15 @@ module "cert_manager_irsa_role" {
 
 resource "helm_release" "cert_manager" {
   count      = var.cert_manager_enabled ? 1 : 0
-  name       = var.helm_chart_name
-  chart      = var.helm_chart_release_name
-  repository = var.helm_chart_repo
-  version    = var.helm_chart_version
+  name       = var.cert_manager_helm_chart_name
+  chart      = var.cert_manager_helm_chart_release_name
+  repository = var.cert_manager_helm_chart_repo
+  version    = var.cert_manager_helm_chart_version
   namespace  = "kube-system"
 
   set {
     name  = "installCRDs"
-    value = var.install_CRDs
+    value = var.cert_manager_install_CRDs
   }
 
   set {
@@ -44,7 +44,7 @@ resource "helm_release" "cert_manager" {
   }
 
   values = [
-    yamlencode(var.settings)
+    yamlencode(var.cert_manager_settings)
   ]
-  depends_on = [module.cert_manager_irsa_role]
+  depends_on = [ module.cert_manager_irsa_role ]
 }
