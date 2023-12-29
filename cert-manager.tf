@@ -1,7 +1,7 @@
 
 module "cert_manager_irsa_role" {
   count  = var.cert_manager_enabled ? 1 : 0
-  source = "../../modules/iam-role-for-service-accounts-eks"
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name                     = var.cert_manager_irsa_role_name
   attach_cert_manager_policy    = true
@@ -9,7 +9,7 @@ module "cert_manager_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["kube-system:cert-manager"]
     }
   }

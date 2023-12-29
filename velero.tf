@@ -1,10 +1,11 @@
-resource "random_pet" "bucket_name" {
+resource "random_pet" "valero_bucket_name" {
+  count     = var.velero_enabled ? 1 : 0
   length    = 3
   separator = "-"
 }
 resource "aws_s3_bucket" "velero_bucket" {
   count  = var.velero_enabled ? 1 : 0
-  bucket = var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.bucket_name.id
+  bucket = var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.valero_bucket_name[0].id
 
   tags = {
     Terraform = "True"
@@ -21,7 +22,7 @@ module "velero_irsa_role" {
 
   oidc_providers = {
     ex = {
-      provider_arn               = data.aws_eks_cluster.eks_cluster.identity[0].oidc[0].issuer
+      provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
       namespace_service_accounts = ["velero:velero"]
     }
   }
@@ -71,9 +72,9 @@ resource "helm_release" "velero" {
     "configuration" : {
       "backupStorageLocation" : [
         {
-          "name"     : "${var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.bucket_name.id}",
+          "name"     : "${var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.valero_bucket_name[0].id}",
           "provider" : "aws",
-          "bucket"   : "${var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.bucket_name.id}",
+          "bucket"   : "${var.velero_bucket_name != "" ? var.velero_bucket_name : random_pet.valero_bucket_name[0].id}",
           "default"  : true
         }
       ],
