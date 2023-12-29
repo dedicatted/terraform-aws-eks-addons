@@ -1,6 +1,6 @@
 module "eks-addons" {
-  source = "/home/user/proj/terraform-aws-eks-addons/."
-  vpc_id = "vpc-example123"
+  source       = "github.com/dedicatted/terraform-aws-eks-addons"
+  vpc_id       = "vpc-example123"
   region       = "us-east-1" # by default us-east-1
   cluster_name = "example-eks"
 
