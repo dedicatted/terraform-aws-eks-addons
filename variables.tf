@@ -575,17 +575,17 @@ variable "prometheus_settings" {
 ############################## PROMETHEUS GRAFANA STACK ######################
 
 variable "prometheus_grafana_enabled" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Variable indicating whether deployment is enabled."
 }
 variable "prometheus_grafana_namespace" {
-  type       = string
+  type        = string
   default     = "monitoring"
   description = "Prometheus Helm chart namespace which the service will be created."
 }
 variable "prometheus_release_name" {
-  default     = "prometheus"
+  default     = "prometheus_grafana_stack"
   type        = string
   description = "Prometheus Helm chart release name."
 }
@@ -605,31 +605,6 @@ variable "prometheus_helm_chart_repo" {
   description = "Promtheus Helm repository name."
 }
 variable "prometheus_grafana_settings" {
-  type        = map(any)
-  default     = {}
-  description = "Additional settings which will be passed to the Helm chart values, see https://prometheus-community.github.io/helm-charts"
-}
-variable "grafana_release_name" {
-  default     = "grafana"
-  type        = string
-  description = "Grafana Helm chart release name."
-}
-variable "grafana_chart_version" {
-  type        = string
-  default     = "7.0.19"
-  description = "Grafana Helm chart version."
-}
-variable "grafana_helm_chart_repo" {
-  type        = string
-  default     = "https://grafana.github.io/helm-charts"
-  description = "Grafana Helm repository name."
-}
-variable "grafana_helm_chart_name" {
-  default     = "grafana"
-  type        = string
-  description = "Grafana Helm chart name."
-}
-variable "grafana_settings" {
   type        = map(any)
   default     = {}
   description = "Additional settings which will be passed to the Helm chart values, see https://prometheus-community.github.io/helm-charts"
