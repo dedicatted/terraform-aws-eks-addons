@@ -50,11 +50,11 @@ module "eks-addons" {
   rancher_domain = "example.com"
   # VPC CNI
   vpc_cni_enabled = true # by default false
-  # Metrics server for prometheus
-  prometheus_metrics_server_enabled = true # by default false
-
-  prometheus_grafana_enabled = true # by default false
-  prometheus_grafana_settings = {
+  # AWS managed service for prometheus
+  aws_prometheus_metrics_server_enabled = true # by default false
+  # Self hosted promtheus and grafana
+  selfhosted_prometheus_grafana_enabled = true # by default false
+  selfhosted_prometheus_grafana_settings = {
     grafana = {
       ingress = {
         enabled          = true
@@ -114,7 +114,7 @@ module "eks-addons" {
 |------|------|
 | [aws_iam_policy.aws_ebs_csi_driver_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role_policy_attachment.attach_kms_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_prometheus_workspace.prometheus_workspace](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/prometheus_workspace) | resource |
+| [aws_prometheus_workspace.aws_prometheus_workspace](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/prometheus_workspace) | resource |
 | [aws_s3_bucket.velero_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [helm_release.alb_ingress](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.cert_manager](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
@@ -127,20 +127,20 @@ module "eks-addons" {
 | [helm_release.kubernetes_efs_csi_driver](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.metrics_server](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.node_termination_handler](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [helm_release.prometheus_grafana_install](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.prometheus_install](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.rancher](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [helm_release.selfhosted_prometheus_grafana_install](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.velero](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.vpc_cni](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [kubectl_manifest.external_secrets_cluster_store](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
 | [kubectl_manifest.storage_class](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
+| [kubernetes_namespace.awsprometheus_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.ingress_nginx_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.karpenter_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.metrics_server_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.node_termination_handler_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
-| [kubernetes_namespace.prometheus_grafana_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
-| [kubernetes_namespace.prometheus_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.rancher_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
+| [kubernetes_namespace.selfhosted_prometheus_grafana_namespace](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [kubernetes_namespace.vpc_cni](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace) | resource |
 | [random_pet.valero_bucket_name](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [time_sleep.wait_for_load_balancer_and_route53_record](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
@@ -162,6 +162,14 @@ module "eks-addons" {
 | <a name="input_autoscaler_chart_version"></a> [autoscaler\_chart\_version](#input\_autoscaler\_chart\_version) | Cluster autoscaler chart version to use for the cluster autoscaler addons (i.e.: 9.29.1) | `string` | `"9.29.1"` | no |
 | <a name="input_aws_ebs_csi_driver_enabled"></a> [aws\_ebs\_csi\_driver\_enabled](#input\_aws\_ebs\_csi\_driver\_enabled) | Enable ebs csi add-ons | `bool` | `false` | no |
 | <a name="input_aws_load_balancer_controller_enabled"></a> [aws\_load\_balancer\_controller\_enabled](#input\_aws\_load\_balancer\_controller\_enabled) | Enable load balancer controller add-ons | `bool` | `false` | no |
+| <a name="input_aws_prometheus_metrics_server_chart_version"></a> [aws\_prometheus\_metrics\_server\_chart\_version](#input\_aws\_prometheus\_metrics\_server\_chart\_version) | Promtheus Helm chart version. | `string` | `"23.0.0"` | no |
+| <a name="input_aws_prometheus_metrics_server_enabled"></a> [aws\_prometheus\_metrics\_server\_enabled](#input\_aws\_prometheus\_metrics\_server\_enabled) | Variable indicating whether deployment is enabled. | `bool` | `false` | no |
+| <a name="input_aws_prometheus_metrics_server_helm_chart_name"></a> [aws\_prometheus\_metrics\_server\_helm\_chart\_name](#input\_aws\_prometheus\_metrics\_server\_helm\_chart\_name) | Prometheus Helm chart name. | `string` | `"prometheus"` | no |
+| <a name="input_aws_prometheus_metrics_server_helm_chart_repo"></a> [aws\_prometheus\_metrics\_server\_helm\_chart\_repo](#input\_aws\_prometheus\_metrics\_server\_helm\_chart\_repo) | Promtheus Helm repository name. | `string` | `"https://prometheus-community.github.io/helm-charts"` | no |
+| <a name="input_aws_prometheus_metrics_server_namespace"></a> [aws\_prometheus\_metrics\_server\_namespace](#input\_aws\_prometheus\_metrics\_server\_namespace) | VPC CNI Helm chart namespace which the service will be created. | `string` | `"monitoring"` | no |
+| <a name="input_aws_prometheus_metrics_server_release_name"></a> [aws\_prometheus\_metrics\_server\_release\_name](#input\_aws\_prometheus\_metrics\_server\_release\_name) | Prometheus Helm chart release name. | `string` | `"prometheus"` | no |
+| <a name="input_aws_prometheus_settings"></a> [aws\_prometheus\_settings](#input\_aws\_prometheus\_settings) | Additional settings which will be passed to the Helm chart values, see https://github.com/aws/eks-charts/tree/master/stable/aws-vpc-cni. | `map(any)` | `{}` | no |
+| <a name="input_aws_prometheus_workspace_alias"></a> [aws\_prometheus\_workspace\_alias](#input\_aws\_prometheus\_workspace\_alias) | Name of amazon managed prometheus workspace. | `string` | `"prometheus-terraform-workspace"` | no |
 | <a name="input_cert_manager_enabled"></a> [cert\_manager\_enabled](#input\_cert\_manager\_enabled) | Variable indicating whether deployment is enabled. | `bool` | `false` | no |
 | <a name="input_cert_manager_hosted_zone_arn"></a> [cert\_manager\_hosted\_zone\_arn](#input\_cert\_manager\_hosted\_zone\_arn) | List of hosted zone arns which would be managed by cert manager | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
 | <a name="input_cert_manager_irsa_role_name"></a> [cert\_manager\_irsa\_role\_name](#input\_cert\_manager\_irsa\_role\_name) | Name of IRSA which created for cert manager addons | `string` | `"CertManagerIRSA"` | no |
@@ -221,21 +229,6 @@ module "eks-addons" {
 | <a name="input_node_termination_handler_helm_chart_version"></a> [node\_termination\_handler\_helm\_chart\_version](#input\_node\_termination\_handler\_helm\_chart\_version) | Spot termination handler Helm chart version. | `string` | `"1.12.7"` | no |
 | <a name="input_node_termination_handler_namespace"></a> [node\_termination\_handler\_namespace](#input\_node\_termination\_handler\_namespace) | Kubernetes namespace to deploy Spot termination handler Helm chart. | `string` | `"kube-system"` | no |
 | <a name="input_node_termination_handler_settings"></a> [node\_termination\_handler\_settings](#input\_node\_termination\_handler\_settings) | Additional settings which will be passed to the Helm chart values. | `map(any)` | `{}` | no |
-| <a name="input_prometheus_chart_version"></a> [prometheus\_chart\_version](#input\_prometheus\_chart\_version) | Promtheus Helm chart version. | `string` | `"55.5.0"` | no |
-| <a name="input_prometheus_grafana_enabled"></a> [prometheus\_grafana\_enabled](#input\_prometheus\_grafana\_enabled) | Variable indicating whether deployment is enabled. | `bool` | `false` | no |
-| <a name="input_prometheus_grafana_namespace"></a> [prometheus\_grafana\_namespace](#input\_prometheus\_grafana\_namespace) | Prometheus Helm chart namespace which the service will be created. | `string` | `"monitoring"` | no |
-| <a name="input_prometheus_grafana_settings"></a> [prometheus\_grafana\_settings](#input\_prometheus\_grafana\_settings) | Additional settings which will be passed to the Helm chart values, see https://prometheus-community.github.io/helm-charts | `map(any)` | `{}` | no |
-| <a name="input_prometheus_helm_chart_name"></a> [prometheus\_helm\_chart\_name](#input\_prometheus\_helm\_chart\_name) | Prometheus Helm chart name. | `string` | `"kube-prometheus-stack"` | no |
-| <a name="input_prometheus_helm_chart_repo"></a> [prometheus\_helm\_chart\_repo](#input\_prometheus\_helm\_chart\_repo) | Promtheus Helm repository name. | `string` | `"https://prometheus-community.github.io/helm-charts"` | no |
-| <a name="input_prometheus_metrics_server_chart_version"></a> [prometheus\_metrics\_server\_chart\_version](#input\_prometheus\_metrics\_server\_chart\_version) | Promtheus Helm chart version. | `string` | `"23.0.0"` | no |
-| <a name="input_prometheus_metrics_server_enabled"></a> [prometheus\_metrics\_server\_enabled](#input\_prometheus\_metrics\_server\_enabled) | Variable indicating whether deployment is enabled. | `bool` | `false` | no |
-| <a name="input_prometheus_metrics_server_helm_chart_name"></a> [prometheus\_metrics\_server\_helm\_chart\_name](#input\_prometheus\_metrics\_server\_helm\_chart\_name) | Prometheus Helm chart name. | `string` | `"prometheus"` | no |
-| <a name="input_prometheus_metrics_server_helm_chart_repo"></a> [prometheus\_metrics\_server\_helm\_chart\_repo](#input\_prometheus\_metrics\_server\_helm\_chart\_repo) | Promtheus Helm repository name. | `string` | `"https://prometheus-community.github.io/helm-charts"` | no |
-| <a name="input_prometheus_metrics_server_namespace"></a> [prometheus\_metrics\_server\_namespace](#input\_prometheus\_metrics\_server\_namespace) | VPC CNI Helm chart namespace which the service will be created. | `string` | `"monitoring"` | no |
-| <a name="input_prometheus_metrics_server_release_name"></a> [prometheus\_metrics\_server\_release\_name](#input\_prometheus\_metrics\_server\_release\_name) | Prometheus Helm chart release name. | `string` | `"prometheus"` | no |
-| <a name="input_prometheus_release_name"></a> [prometheus\_release\_name](#input\_prometheus\_release\_name) | Prometheus Helm chart release name. | `string` | `"prometheus_grafana_stack"` | no |
-| <a name="input_prometheus_settings"></a> [prometheus\_settings](#input\_prometheus\_settings) | Additional settings which will be passed to the Helm chart values, see https://github.com/aws/eks-charts/tree/master/stable/aws-vpc-cni. | `map(any)` | `{}` | no |
-| <a name="input_prometheus_workspace_alias"></a> [prometheus\_workspace\_alias](#input\_prometheus\_workspace\_alias) | Name of amazon managed prometheus workspace. | `string` | `"prometheus-terraform-workspace"` | no |
 | <a name="input_provider_arn"></a> [provider\_arn](#input\_provider\_arn) | providerarn | `string` | `""` | no |
 | <a name="input_rancher_bootstrapPassword"></a> [rancher\_bootstrapPassword](#input\_rancher\_bootstrapPassword) | Setup initial password while deploy rancher | `string` | `"admin"` | no |
 | <a name="input_rancher_chart_name"></a> [rancher\_chart\_name](#input\_rancher\_chart\_name) | Rancher Helm chart name. | `string` | `"rancher"` | no |
@@ -246,6 +239,13 @@ module "eks-addons" {
 | <a name="input_rancher_version"></a> [rancher\_version](#input\_rancher\_version) | Rancher Helm chart version. | `string` | `"2.8.0"` | no |
 | <a name="input_region"></a> [region](#input\_region) | Indicates where EKS cluster located (default value us-east-1) | `string` | `"us-east-1"` | no |
 | <a name="input_route53_zone_name"></a> [route53\_zone\_name](#input\_route53\_zone\_name) | Name of route 53 for external dns | `string` | `""` | no |
+| <a name="input_selfhosted_prometheus_chart_version"></a> [selfhosted\_prometheus\_chart\_version](#input\_selfhosted\_prometheus\_chart\_version) | Promtheus Helm chart version. | `string` | `"55.5.0"` | no |
+| <a name="input_selfhosted_prometheus_grafana_enabled"></a> [selfhosted\_prometheus\_grafana\_enabled](#input\_selfhosted\_prometheus\_grafana\_enabled) | Variable indicating whether deployment is enabled. | `bool` | `false` | no |
+| <a name="input_selfhosted_prometheus_grafana_namespace"></a> [selfhosted\_prometheus\_grafana\_namespace](#input\_selfhosted\_prometheus\_grafana\_namespace) | Prometheus Helm chart namespace which the service will be created. | `string` | `"monitoring"` | no |
+| <a name="input_selfhosted_prometheus_grafana_settings"></a> [selfhosted\_prometheus\_grafana\_settings](#input\_selfhosted\_prometheus\_grafana\_settings) | Additional settings which will be passed to the Helm chart values, see https://prometheus-community.github.io/helm-charts | `map(any)` | `{}` | no |
+| <a name="input_selfhosted_prometheus_helm_chart_name"></a> [selfhosted\_prometheus\_helm\_chart\_name](#input\_selfhosted\_prometheus\_helm\_chart\_name) | Prometheus Helm chart name. | `string` | `"kube-prometheus-stack"` | no |
+| <a name="input_selfhosted_prometheus_helm_chart_repo"></a> [selfhosted\_prometheus\_helm\_chart\_repo](#input\_selfhosted\_prometheus\_helm\_chart\_repo) | Promtheus Helm repository name. | `string` | `"https://prometheus-community.github.io/helm-charts"` | no |
+| <a name="input_selfhosted_prometheus_release_name"></a> [selfhosted\_prometheus\_release\_name](#input\_selfhosted\_prometheus\_release\_name) | Prometheus Helm chart release name. | `string` | `"prometheus_grafana_stack"` | no |
 | <a name="input_settings"></a> [settings](#input\_settings) | Additional settings which will be passed to the Helm chart values. | `map` | `{}` | no |
 | <a name="input_velero_bucket_name"></a> [velero\_bucket\_name](#input\_velero\_bucket\_name) | Name of bucket created for velero addons | `string` | `"valero-test-bucket-id1234023123"` | no |
 | <a name="input_velero_chart_version"></a> [velero\_chart\_version](#input\_velero\_chart\_version) | Velero chart version to use for the velero addons(i.e.: `4.1.3`) | `string` | `"4.1.3"` | no |

@@ -41,13 +41,13 @@ module "eks-addons" {
   rancher_enabled = true # by default false
   rancher_domain  = "example.com"
   # VPC CNI
-  vpc_cni_enabled            = true    # by default false
+  vpc_cni_enabled            = true     # by default false
   vpc_cni_helm_chart_version = "1.16.0" # by default take last available chart for your EKS cluster version
   # Metrics server for prometheus
-  prometheus_metrics_server_enabled = true # by default false
+  aws_prometheus_metrics_server_enabled = true # by default false
   # Prometheus and grafana stack
-  prometheus_grafana_enabled = true
-  prometheus_grafana_settings = {
+  selfhosted_prometheus_grafana_enabled = true
+  selfhosted_prometheus_grafana_settings = {
     grafana = {
       ingress = {
         enabled          = true
