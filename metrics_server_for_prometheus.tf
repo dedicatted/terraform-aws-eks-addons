@@ -1,5 +1,5 @@
 module "amazon_managed_service_prometheus_irsa_role" {
-  count  = var.prometheus_metrics_server_enabled ? 1 : 0
+  count  = var.aws_prometheus_metrics_server_enabled ? 1 : 0
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
 
   role_name                                       = "amp-iamproxy-ingest-role"
@@ -8,30 +8,30 @@ module "amazon_managed_service_prometheus_irsa_role" {
   oidc_providers = {
     ex = {
       provider_arn               = "arn:aws:iam::${data.aws_caller_identity.current.id}:oidc-provider/${local.provider_arn}"
-      namespace_service_accounts = ["${var.prometheus_metrics_server_namespace}:amp-iamproxy-ingest-service-account"]
+      namespace_service_accounts = ["${var.aws_prometheus_metrics_server_namespace}:amp-iamproxy-ingest-service-account"]
     }
   }
 }
 
-resource "aws_prometheus_workspace" "prometheus_workspace" {
-  count = var.prometheus_metrics_server_enabled ? 1 : 0
-  alias = var.prometheus_workspace_alias
+resource "aws_prometheus_workspace" "aws_prometheus_workspace" {
+  count = var.aws_prometheus_metrics_server_enabled ? 1 : 0
+  alias = var.aws_prometheus_workspace_alias
 }
 
-resource "kubernetes_namespace" "prometheus_namespace" {
-  count = (var.prometheus_metrics_server_enabled && var.prometheus_metrics_server_namespace != "kube-system") ? 1 : 0
+resource "kubernetes_namespace" "awsprometheus_namespace" {
+  count = (var.aws_prometheus_metrics_server_enabled && var.aws_prometheus_metrics_server_namespace != "kube-system") ? 1 : 0
 
   metadata {
-    name = var.prometheus_metrics_server_namespace
+    name = var.aws_prometheus_metrics_server_namespace
   }
 }
 resource "helm_release" "prometheus_install" {
-  count      = var.prometheus_metrics_server_enabled ? 1 : 0
-  name       = var.prometheus_metrics_server_release_name
-  namespace  = var.prometheus_metrics_server_namespace
-  version    = var.prometheus_metrics_server_chart_version
-  repository = var.prometheus_metrics_server_helm_chart_repo
-  chart      = var.prometheus_metrics_server_helm_chart_name
+  count      = var.aws_prometheus_metrics_server_enabled ? 1 : 0
+  name       = var.aws_prometheus_metrics_server_release_name
+  namespace  = var.aws_prometheus_metrics_server_namespace
+  version    = var.aws_prometheus_metrics_server_chart_version
+  repository = var.aws_prometheus_metrics_server_helm_chart_repo
+  chart      = var.aws_prometheus_metrics_server_helm_chart_name
   set {
     name  = "serviceAccounts.server.name"
     value = "amp-iamproxy-ingest-service-account"
@@ -50,7 +50,7 @@ resource "helm_release" "prometheus_install" {
   }
   set {
     name  = "server.remoteWrite[0].url"
-    value = "https://aps-workspaces.${var.region}.amazonaws.com/workspaces/${aws_prometheus_workspace.prometheus_workspace[0].id}/api/v1/remote_write"
+    value = "https://aps-workspaces.${var.region}.amazonaws.com/workspaces/${aws_prometheus_workspace.aws_prometheus_workspace[0].id}/api/v1/remote_write"
   }
   set {
     name  = "server.remoteWrite[0].sigv4.region"
@@ -76,5 +76,8 @@ resource "helm_release" "prometheus_install" {
     name  = "pushgateway.create"
     value = "false"
   }
-  depends_on = [aws_prometheus_workspace.prometheus_workspace, module.amazon_managed_service_prometheus_irsa_role]
+  values = [
+    yamlencode(var.aws_prometheus_settings)
+  ]
+  depends_on = [aws_prometheus_workspace.aws_prometheus_workspace, module.amazon_managed_service_prometheus_irsa_role]
 }
