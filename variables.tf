@@ -530,44 +530,82 @@ variable "vpc_cni_settings" {
 }
 
 ################################## METRICS_SERVER_FOR_PROMETHEUS #################################
-variable "prometheus_metrics_server_enabled" {
+variable "aws_prometheus_metrics_server_enabled" {
   type        = bool
   default     = false
   description = "Variable indicating whether deployment is enabled."
 }
 
-variable "prometheus_metrics_server_namespace" {
+variable "aws_prometheus_metrics_server_namespace" {
   type        = string
   default     = "monitoring"
   description = "VPC CNI Helm chart namespace which the service will be created."
 }
-variable "prometheus_metrics_server_chart_version" {
+variable "aws_prometheus_metrics_server_chart_version" {
   type        = string
   default     = "23.0.0"
   description = "Promtheus Helm chart version."
 }
-variable "prometheus_metrics_server_helm_chart_repo" {
+variable "aws_prometheus_metrics_server_helm_chart_repo" {
   type        = string
   default     = "https://prometheus-community.github.io/helm-charts"
   description = "Promtheus Helm repository name."
 }
-variable "prometheus_metrics_server_helm_chart_name" {
+variable "aws_prometheus_metrics_server_helm_chart_name" {
   default     = "prometheus"
   type        = string
   description = "Prometheus Helm chart name."
 }
-variable "prometheus_metrics_server_release_name" {
+variable "aws_prometheus_metrics_server_release_name" {
   default     = "prometheus"
   type        = string
   description = "Prometheus Helm chart release name."
 }
-variable "prometheus_workspace_alias" {
+variable "aws_prometheus_workspace_alias" {
   type        = string
   default     = "prometheus-terraform-workspace"
   description = "Name of amazon managed prometheus workspace."
 }
-variable "prometheus_settings" {
+variable "aws_prometheus_settings" {
   type        = map(any)
   default     = {}
   description = "Additional settings which will be passed to the Helm chart values, see https://github.com/aws/eks-charts/tree/master/stable/aws-vpc-cni."
+}
+
+############################## PROMETHEUS GRAFANA STACK ######################
+
+variable "selfhosted_prometheus_grafana_enabled" {
+  type        = bool
+  default     = false
+  description = "Variable indicating whether deployment is enabled."
+}
+variable "selfhosted_prometheus_grafana_namespace" {
+  type        = string
+  default     = "monitoring"
+  description = "Prometheus Helm chart namespace which the service will be created."
+}
+variable "selfhosted_prometheus_release_name" {
+  default     = "prometheus_grafana_stack"
+  type        = string
+  description = "Prometheus Helm chart release name."
+}
+variable "selfhosted_prometheus_chart_version" {
+  type        = string
+  default     = "55.5.0"
+  description = "Promtheus Helm chart version."
+}
+variable "selfhosted_prometheus_helm_chart_name" {
+  default     = "kube-prometheus-stack"
+  type        = string
+  description = "Prometheus Helm chart name."
+}
+variable "selfhosted_prometheus_helm_chart_repo" {
+  type        = string
+  default     = "https://prometheus-community.github.io/helm-charts"
+  description = "Promtheus Helm repository name."
+}
+variable "selfhosted_prometheus_grafana_settings" {
+  type        = map(any)
+  default     = {}
+  description = "Additional settings which will be passed to the Helm chart values, see https://prometheus-community.github.io/helm-charts"
 }
